@@ -118,12 +118,17 @@ public class ChunkGenerator : MonoBehaviour
 
                     Transform endPoint = chunkData.GetEndpoint();
                     currentChunk.transform.position = endPoint.position;
+                    if(currentChunk.TryGetComponent<ChunkPrefab>(out ChunkPrefab chunkPrefab))
+                    {
+                        chunkPrefab.ResetCollectibles();
+                    }
                     Chunks.RemoveAt(i);
                     Chunks.Add(currentChunk);
                     i--;
                 }
             }
         }
+
     }
     private void StopGeneration()
     {
