@@ -1,6 +1,15 @@
+# Unity generated
 Library/
 Temp/
 Logs/
 Build/
 obj/
 UserSettings/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.csproj
+*.sln
+*.slnx
+*.lscache
