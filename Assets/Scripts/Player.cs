@@ -61,6 +61,7 @@ public class Player : MonoBehaviour
     {
 
         if (isSwitchingLane) return;
+        if (isSliding) return;
         if (laneQueue.Count == 0) return;
 
         int dir = laneQueue.Dequeue();
@@ -119,10 +120,12 @@ public class Player : MonoBehaviour
     {
         if (slideAction.WasPressedThisFrame() && isGrounded)
         {
+            isSliding = true;
             PlayerEvents.OnSlideStart?.Invoke();
         }
         else if (slideAction.WasReleasedThisFrame())
         {
+            isSliding = false;
             PlayerEvents.OnSlideEnd?.Invoke();
         }
     }

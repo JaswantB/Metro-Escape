@@ -12,42 +12,56 @@ public class ChunkGenerator : MonoBehaviour
     [SerializeField] private float chunkLength = 20;
     [SerializeField] private Transform chunkParent;
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float initialSpawnOffset = 7.5f;
 
+    private bool isGameOver = false;
 
     int hardStreak = 0;
     List<GameObject> Chunks;
+    void OnEnable()
+    {
+        PlayerEvents.OnPlayerHit+= StopGeneration;
+    }
+    void OnDisable()
+    {
+        PlayerEvents.OnPlayerHit-= StopGeneration;
+    }
     private void Start()
     {
         SpawnChunks();
     }
     void Update()
     {
+        if (isGameOver)
+        {
+            return;
+        }
         MoveChunks();
     }
     GameObject SelectedNextPrefab()
     {
-        if(hardStreak >= 5)
+        if (hardStreak >= 5)
         {
-            int index=Random.Range(0,easyChunk.Count);
-            hardStreak=0;
+            int index = Random.Range(0, easyChunk.Count);
+            hardStreak = 0;
             return easyChunk[index];
         }
-        float rand=Random.value;
-        if(rand < 0.2f)
+        float rand = Random.value;
+        if (rand < 0.2f)
         {
-            int index=Random.Range(0,easyChunk.Count);
-            hardStreak=0;
+            int index = Random.Range(0, easyChunk.Count);
+            hardStreak = 0;
             return easyChunk[index];
         }
-        else if(rand < 0.5f)
+        else if (rand < 0.5f)
         {
-            int index=Random.Range(0,medChunk.Count);
-            hardStreak=0;
+            int index = Random.Range(0, medChunk.Count);
+            hardStreak = 0;
             return medChunk[index];
         }
         else
         {
-            int index=Random.Range(0,hardChunk.Count);
+            int index = Random.Range(0, hardChunk.Count);
             hardStreak++;
             return hardChunk[index];
         }
@@ -63,11 +77,12 @@ public class ChunkGenerator : MonoBehaviour
             if (i == 0)
             {
                 selectedPrefab = easyChunk[Random.Range(0, easyChunk.Count)];
-                newChunk = Instantiate(selectedPrefab, transform.position, Quaternion.identity, chunkParent);
+                Vector3 spawnPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z + initialSpawnOffset);
+                newChunk = Instantiate(selectedPrefab, spawnPosition, Quaternion.identity, chunkParent);
             }
             else
             {
-                selectedPrefab=SelectedNextPrefab();
+                selectedPrefab = SelectedNextPrefab();
                 GameObject lastChunk = Chunks[Chunks.Count - 1];
                 IChunk chunkData = lastChunk.GetComponent<IChunk>();
                 Transform endPoint = chunkData.GetEndpoint();
@@ -98,7 +113,7 @@ public class ChunkGenerator : MonoBehaviour
                 }
                 else
                 {
-                    GameObject selectedPrefab= SelectedNextPrefab();
+                    GameObject selectedPrefab = SelectedNextPrefab();
                     IChunk chunkData = lastChunk.GetComponent<IChunk>();
 
                     Transform endPoint = chunkData.GetEndpoint();
@@ -109,6 +124,11 @@ public class ChunkGenerator : MonoBehaviour
                 }
             }
         }
+    }
+    private void StopGeneration()
+    {
+        isGameOver = true;
+        // Optionally, you can also stop all chunk movement here if needed.
     }
 }
 

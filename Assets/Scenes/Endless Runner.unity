@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: cdbb40e11399e4a17882ada20a1b896a, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -93,8 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 4890085278179872738, guid: 3e00335e3794ca54fbe1095a7da32c8a, type: 2}
+  m_LightingDataAsset: {fileID: 112000000, guid: 364ca66c457113f4796c46c64d908f9e, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 77b131decc7b844ddbe504ff94c11c56, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -206,8 +206,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00000073336, y: 5.58, z: -20.44}
+  m_LocalRotation: {x: 0.1836181, y: 0, z: 0, w: 0.98299766}
+  m_LocalPosition: {x: 0.0000009717786, y: 5.5940375, z: -25.553806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -318,7 +318,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1.85
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -470,9 +470,10 @@ MonoBehaviour:
   - {fileID: 3339473537091251915, guid: 971468ac3e16cc44d83a0c358d8372da, type: 3}
   - {fileID: 7826519848803884605, guid: 9d6fdc9247e97dd45b86d6d2134e0df4, type: 3}
   chunkAmount: 8
-  chunkLength: 40
+  chunkLength: 58
   chunkParent: {fileID: 1083636100}
   moveSpeed: 5
+  initialSpawnOffset: 7.5
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,13 +660,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1828019825}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00000073336, y: 5.58, z: -20.44}
+  m_LocalRotation: {x: 0.1836181, y: -0, z: -0, w: 0.98299766}
+  m_LocalPosition: {x: 0.0000009717786, y: 5.5940375, z: -25.553806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0.03, z: 0}
+  m_LocalEulerAnglesHint: {x: 21.161, y: 0, z: 0}
 --- !u!114 &1828019828
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -675,10 +676,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 1828019825}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
+  m_Script: {fileID: 11500000, guid: ca7de3aefa901374ba29464584a3109a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotateWithFollowTarget
-  Damping: 0
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineDecollider
+  CameraRadius: 0.3
+  Decollision:
+    Enabled: 1
+    ObstacleLayers:
+      serializedVersion: 2
+      m_Bits: 64
+    UseFollowTarget:
+      Enabled: 1
+      YOffset: 0.06
+    Damping: 0.5
+    SmoothingTime: 0.62
+  TerrainResolution:
+    Enabled: 1
+    TerrainLayers:
+      serializedVersion: 2
+      m_Bits: 64
+    MaximumRaycast: 10
+    Damping: 2.85
 --- !u!114 &1828019829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,23 +706,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 1828019825}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 625c14eee3ad46c99df7c7c891ef668a, type: 3}
+  m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineThirdPersonFollow
-  Damping: {x: 0.1, y: 0.5, z: 0.3}
-  ShoulderOffset: {x: 0, y: 6, z: -7.5}
-  VerticalArmLength: -0.42
-  CameraSide: 1
-  CameraDistance: 1.37
-  AvoidObstacles:
-    Enabled: 0
-    CollisionFilter:
-      serializedVersion: 2
-      m_Bits: 1
-    IgnoreTag: 
-    CameraRadius: 0.2
-    DampingIntoCollision: 0
-    DampingFromCollision: 0.5
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachinePositionComposer
+  CameraDistance: 8.1
+  DeadZoneDepth: 0
+  Composition:
+    ScreenPosition: {x: 0, y: 0}
+    DeadZone:
+      Enabled: 1
+      Size: {x: 0.17, y: 0.2}
+    HardLimits:
+      Enabled: 1
+      Size: {x: 0.29, y: 0.47}
+      Offset: {x: 0, y: 0}
+  CenterOnActivate: 1
+  TargetOffset: {x: 0, y: 2.67, z: 0}
+  Damping: {x: 0, y: 0, z: 0}
+  Lookahead:
+    Enabled: 1
+    Time: 0
+    Smoothing: 0
+    IgnoreY: 1
 --- !u!1001 &1657272520923241165
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -714,8 +737,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2079413570566530372, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
+      propertyPath: m_Height
+      value: 2.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079413570566530372, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
       propertyPath: m_Radius
-      value: 0.31
+      value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 2079413570566530372, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
+      propertyPath: m_Center.y
+      value: 1.38
       objectReference: {fileID: 0}
     - target: {fileID: 3173402871998107951, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
       propertyPath: laneDistance
@@ -739,7 +770,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545813155326409927, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.57
+      value: -18
       objectReference: {fileID: 0}
     - target: {fileID: 6545813155326409927, guid: fb203d4424dbbc547836efc9d0d05867, type: 3}
       propertyPath: m_LocalRotation.w

@@ -19,6 +19,7 @@ public class PlayerAnimator : MonoBehaviour
         PlayerEvents.OnSlideStart += OnSlide;
         PlayerEvents.OnSlideEnd += SlideEnd;
         PlayerEvents.OnLaneChanged += OnLaneChange;
+        PlayerEvents.OnPlayerHit += OnPlayerHit;
     }
 
     void OnDisable()
@@ -28,6 +29,7 @@ public class PlayerAnimator : MonoBehaviour
         PlayerEvents.OnSlideStart -= OnSlide;
         PlayerEvents.OnSlideEnd -= SlideEnd;
         PlayerEvents.OnLaneChanged -= OnLaneChange;
+        PlayerEvents.OnPlayerHit -= OnPlayerHit;
     }
 
     void OnJumpEvent()
@@ -70,5 +72,9 @@ public class PlayerAnimator : MonoBehaviour
 
         anim.ResetTrigger("LaneSwitch");
         anim.SetTrigger("LaneSwitch");
+    }
+    void OnPlayerHit()
+    {
+        anim.SetTrigger("Die");
     }
 }
