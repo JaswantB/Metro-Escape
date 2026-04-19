@@ -2,16 +2,38 @@ using UnityEngine;
 
 public class Collectible : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision other)
+    private Collider coinCollider;
+    private Renderer[] coinRenderers;
+
+    private void Awake()
     {
-        if (other.collider.TryGetComponent<Player>(out Player player))
+        coinCollider = GetComponent<Collider>();
+        // Only get renderers from children, NOT including any parent animator
+        coinRenderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!coinCollider.enabled) return;
+
+        if (other.TryGetComponent<Player>(out Player player))
         {
             PlayerEvents.OnCoinsCollected?.Invoke(1);
-            gameObject.SetActive(false);
+            HideCoin();
         }
     }
+
+    private void HideCoin()
+    {
+        coinCollider.enabled = false;
+        foreach (Renderer r in coinRenderers)
+            r.enabled = false;
+    }
+
     public void ResetCollectible()
     {
-        gameObject.SetActive(true);
+        coinCollider.enabled = true;
+        foreach (Renderer r in coinRenderers)
+            r.enabled = true;
     }
 }

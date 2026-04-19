@@ -7,7 +7,6 @@ public class Obstcale : MonoBehaviour
         if (other.TryGetComponent<Player>(out Player player))
         {
             PlayerEvents.OnPlayerHit?.Invoke();
-            gameObject.SetActive(false);
         }
     }
 }

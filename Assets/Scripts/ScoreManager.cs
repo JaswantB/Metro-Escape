@@ -1,16 +1,16 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
+
     private int currentScore = 0;
     private int coinsCollected = 0;
     private float scoreTimer = 0f;
-
-    [SerializeField] private float scoreIncreaseInterval = 1f;
-    [SerializeField] private int coinScoreValue = 5;
     private bool isGameOver = false;
+
+    [SerializeField] private float scoreIncreaseInterval = 0.1f; // faster = smoother
+
     private void Awake()
     {
         if (Instance == null)
@@ -18,17 +18,26 @@ public class ScoreManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        else Destroy(gameObject);
     }
-    void Update()
+
+    private void OnEnable()
     {
-        if (isGameOver)
-        {
-            return;
-        }
+        PlayerEvents.OnPlayerHit      += HandleGameOver;
+        PlayerEvents.OnScoreReset     += ResetScore;
+        PlayerEvents.OnCoinsCollected += CollectCoins; // only coins, no score change
+    }
+
+    private void OnDisable()
+    {
+        PlayerEvents.OnPlayerHit      -= HandleGameOver;
+        PlayerEvents.OnScoreReset     -= ResetScore;
+        PlayerEvents.OnCoinsCollected -= CollectCoins;
+    }
+
+    private void Update()
+    {
+        if (isGameOver) return;
         scoreTimer += Time.deltaTime;
         if (scoreTimer >= scoreIncreaseInterval)
         {
@@ -37,42 +46,25 @@ public class ScoreManager : MonoBehaviour
             PlayerEvents.OnScoreIncreased?.Invoke();
         }
     }
-    private void OnEnable()
+
+    private void CollectCoins(int amount)
     {
-        PlayerEvents.OnPlayerHit += HandleGameOver;
-        PlayerEvents.OnScoreReset += ResetScore;
-        PlayerEvents.OnCoinsCollected += CollectCoins;
+        coinsCollected += amount;
     }
-    private void OnDisable()
-    {
-        PlayerEvents.OnPlayerHit -= HandleGameOver;
-        PlayerEvents.OnScoreReset -= ResetScore;
-        PlayerEvents.OnCoinsCollected -= CollectCoins;
-    }
+
     private void HandleGameOver()
     {
         isGameOver = true;
     }
-    private void CollectCoins(int amount)
-    {
-        coinsCollected += amount;
-        currentScore = coinScoreValue;
-        PlayerEvents.OnScoreIncreased?.Invoke();
-    }
+
     private void ResetScore()
     {
-        currentScore = 0;
+        currentScore  = 0;
         coinsCollected = 0;
-        scoreTimer = 0f;
-        isGameOver = false;
-    }
-    public int GetCurrentScore()
-    {
-        return currentScore;
-    }
-    public int GetCoinsCollected()
-    {
-        return coinsCollected;
+        scoreTimer    = 0f;
+        isGameOver    = false;
     }
 
+    public int GetCurrentScore()    => currentScore;
+    public int GetCoinsCollected()  => coinsCollected;
 }
