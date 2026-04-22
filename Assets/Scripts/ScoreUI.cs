@@ -31,18 +31,19 @@ public class ScoreUI : MonoBehaviour
         if (ScoreManager.Instance == null) return;
 
         int realScore = ScoreManager.Instance.GetCurrentScore();
-        if (displayedScore < realScore)
-        {
-            displayedScore = Mathf.MoveTowards(
-                displayedScore, realScore, countSpeed * Time.deltaTime
-            );
-            int rounded = Mathf.RoundToInt(displayedScore);
-            if (rounded != lastScore)
-            {
-                lastScore      = rounded;
-                scoreText.text = rounded.ToString();
-            }
-        }
+        scoreText.text = realScore.ToString();
+        // if (displayedScore < realScore)
+        // {
+        //     displayedScore = Mathf.MoveTowards(
+        //         displayedScore, realScore, countSpeed * Time.deltaTime
+        //     );
+        //     int rounded = Mathf.RoundToInt(displayedScore);
+        //     if (rounded != lastScore)
+        //     {
+        //         lastScore      = rounded;
+        //         scoreText.text = rounded.ToString();
+        //     }
+        //}
     }
 
     private void UpdateCoinUI(int amount)
