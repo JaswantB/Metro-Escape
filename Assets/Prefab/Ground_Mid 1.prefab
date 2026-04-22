@@ -1687,18 +1687,6 @@ PrefabInstance:
       value: Props_BillBoard_medium (2)
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.07209656
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.3498598
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.025
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.328279
       objectReference: {fileID: 0}
@@ -1738,35 +1726,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4690143096708956196, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5556571650518925463}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
---- !u!1 &7784472860508172928 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}
-  m_PrefabInstance: {fileID: 7784472860508271648}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5556571650518925463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7784472860508172928}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96682ce223ac63142ac9ce128988fb3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Obstcale
 --- !u!4 &7784472860508401312 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 24ecc5bb467b3fe4b9c1660c3678ef90, type: 3}

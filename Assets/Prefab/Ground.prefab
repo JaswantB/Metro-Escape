@@ -2607,17 +2607,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Props_Traffic Control Barrier Fence
       objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 484404636ac422042a24ac95512dc2d3, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 484404636ac422042a24ac95512dc2d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.2816667
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 484404636ac422042a24ac95512dc2d3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0.43
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 484404636ac422042a24ac95512dc2d3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2921,11 +2917,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 257364155661579756, guid: d9304cd04c2fece4f9d946d6766a3185, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.274
+      value: 0.278
       objectReference: {fileID: 0}
     - target: {fileID: 257364155661579756, guid: d9304cd04c2fece4f9d946d6766a3185, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.32
+      value: 1.3
       objectReference: {fileID: 0}
     - target: {fileID: 257364155661579756, guid: d9304cd04c2fece4f9d946d6766a3185, type: 3}
       propertyPath: m_LocalPosition.z
