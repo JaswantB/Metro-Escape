@@ -13,5 +13,6 @@ public class PlayerEvents
     public static Action OnScoreIncreased;
     public static Action OnScoreReset;
     public static Action <int>OnCoinsCollected;
-    
+
+    public static Action<float>OnVolumeChanged;    
 }
