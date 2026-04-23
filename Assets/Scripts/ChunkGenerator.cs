@@ -20,11 +20,11 @@ public class ChunkGenerator : MonoBehaviour
     List<GameObject> Chunks;
     void OnEnable()
     {
-        PlayerEvents.OnPlayerHit+= StopGeneration;
+        PlayerEvents.OnPlayerHit  += StopGeneration;
     }
     void OnDisable()
     {
-        PlayerEvents.OnPlayerHit-= StopGeneration;
+        PlayerEvents.OnPlayerHit  -= StopGeneration;
     }
     private void Start()
     {
@@ -79,6 +79,7 @@ public class ChunkGenerator : MonoBehaviour
                 selectedPrefab = easyChunk[Random.Range(0, easyChunk.Count)];
                 Vector3 spawnPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z + initialSpawnOffset);
                 newChunk = Instantiate(selectedPrefab, spawnPosition, Quaternion.identity, chunkParent);
+                Debug.Log("Spawn X: " + spawnPosition.x);
             }
             else
             {
@@ -87,6 +88,7 @@ public class ChunkGenerator : MonoBehaviour
                 IChunk chunkData = lastChunk.GetComponent<IChunk>();
                 Transform endPoint = chunkData.GetEndpoint();
                 newChunk = Instantiate(selectedPrefab, endPoint.position, Quaternion.identity, chunkParent);
+
             }
             Chunks.Add(newChunk);
             Debug.Log("Chunk Instantiating");
@@ -118,7 +120,7 @@ public class ChunkGenerator : MonoBehaviour
 
                     Transform endPoint = chunkData.GetEndpoint();
                     currentChunk.transform.position = endPoint.position;
-                    if(currentChunk.TryGetComponent<ChunkPrefab>(out ChunkPrefab chunkPrefab))
+                    if (currentChunk.TryGetComponent<ChunkPrefab>(out ChunkPrefab chunkPrefab))
                     {
                         chunkPrefab.ResetCollectibles();
                     }

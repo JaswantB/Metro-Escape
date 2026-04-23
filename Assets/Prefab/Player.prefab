@@ -71,10 +71,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76338c66462a8f64d91621ec6e97d131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  laneDistance: 7
+  laneDistance: 6.5
   laneSwitchSpeed: 4
   jumpForce: 15
-  gravityForce: -25
+  gravityForce: -30
+  hitAnimationDuration: 3.09
 --- !u!114 &5432801344067647361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
   isJumping: 0
+  isDead: 0
   LaneChangeCoolDown: 0.5
 --- !u!143 &2079413570566530372
 CharacterController:

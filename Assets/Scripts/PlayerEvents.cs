@@ -8,6 +8,7 @@ public class PlayerEvents
     public static Action OnSlideEnd;
     
     public static Action OnPlayerHit;
+    public static Action OnPlayerDead;
     public static Action<int>OnLaneChanged;
 
     public static Action OnScoreIncreased;

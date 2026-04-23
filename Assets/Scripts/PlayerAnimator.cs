@@ -4,6 +4,7 @@ public class PlayerAnimator : MonoBehaviour
 {
     Animator anim;
     public bool isJumping;
+    public bool isDead;
 
     [SerializeField] float LaneChangeCoolDown = 0.5f;
     float lastChangeTime;
@@ -34,6 +35,7 @@ public class PlayerAnimator : MonoBehaviour
 
     void OnJumpEvent()
     {
+        if (isDead) return;
         if (isJumping) return;
         isJumping = true;
         anim.ResetTrigger("Roll");
@@ -53,6 +55,7 @@ public class PlayerAnimator : MonoBehaviour
     }
     void OnSlide()
     {
+        if (isDead) return;
         anim.ResetTrigger("Jump");
         anim.SetTrigger("Sliding");
         anim.SetBool("isSliding", true);
@@ -63,7 +66,10 @@ public class PlayerAnimator : MonoBehaviour
     }
     void OnLaneChange(int dir)
     {
+        if (isDead) return;
+
         if (isJumping) return;
+
 
         if (Time.time - lastChangeTime < LaneChangeCoolDown)
             return;
@@ -75,6 +81,11 @@ public class PlayerAnimator : MonoBehaviour
     }
     void OnPlayerHit()
     {
+        isDead=true;
+        anim.SetBool("isDead", true);
+        anim.ResetTrigger("Jump");
+        anim.ResetTrigger("LaneSwitch");
+        anim.ResetTrigger("Sliding");
         anim.SetTrigger("Die");
     }
 }

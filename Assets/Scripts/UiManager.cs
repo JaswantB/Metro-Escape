@@ -19,6 +19,8 @@ public class UiManager : MonoBehaviour
     public GameObject loadingScreen;
     public Slider loadingBar;
 
+    [SerializeField] private AudioClip menuMusic;
+
     private void Awake()
     {
         settingsPanel.localScale = Vector3.zero;
@@ -26,6 +28,9 @@ public class UiManager : MonoBehaviour
 
     private void Start()
     {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.ChangeMusic(menuMusic);
+
         mainMenuPanel.localScale = Vector3.zero;
         mainMenuPanel.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
     }
@@ -46,7 +51,7 @@ public class UiManager : MonoBehaviour
 
     private void OnPlayButtonClicked()
     {
-        mainMenuPanel.DOScale(0f,0.3f).SetEase(Ease.InBack).OnComplete(()=>
+        mainMenuPanel.DOScale(0f, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
         {
             StartCoroutine(LoadScene());
         });
@@ -58,31 +63,31 @@ public class UiManager : MonoBehaviour
         loadingScreen.SetActive(true);
         loadingBar.value = 0f;
 
-        AsyncOperation operation =SceneManager.LoadSceneAsync("EndlessRunner");
+        AsyncOperation operation = SceneManager.LoadSceneAsync("EndlessRunner");
         operation.allowSceneActivation = false;
 
-        while(operation.progress < 0.9f)
+        while (operation.progress < 0.9f)
         {
             loadingBar.value = operation.progress;
             yield return null;
         }
-        loadingBar.DOValue(1f,0.5f).OnComplete(()=>
+        loadingBar.DOValue(1f, 0.5f).OnComplete(() =>
         {
             operation.allowSceneActivation = true;
         });
     }
     private void OnSettingsButtonClicked()
     {
-        mainMenuPanel.DOScale(0f,0.3f).SetEase(Ease.InBack).OnComplete(()=>
+        mainMenuPanel.DOScale(0f, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
         {
-            settingsPanel.DOScale(1f,0.5f).SetEase(Ease.OutBack);
+            settingsPanel.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
         });
     }
     private void OnBackButtonClicked()
     {
-        settingsPanel.DOScale(0f,0.3f).SetEase(Ease.InBack).OnComplete(()=>
+        settingsPanel.DOScale(0f, 0.3f).SetEase(Ease.InBack).OnComplete(() =>
         {
-            mainMenuPanel.DOScale(1f,0.5f).SetEase(Ease.OutBack);
+            mainMenuPanel.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
         });
     }
 
