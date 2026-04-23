@@ -67,9 +67,7 @@ public class GameOverUI : MonoBehaviour
 
     public void OnRetryClicked()
     {
-        Time.timeScale = 1f;
-
-        PlayerEvents.OnScoreReset?.Invoke();
+        GameManager.instance.SetState(GameState.Playing);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 

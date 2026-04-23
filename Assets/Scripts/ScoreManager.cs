@@ -39,7 +39,10 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
-        if (isGameOver) return;
+        if (GameManager.instance?.CurrentState != GameState.Playing)
+        {
+            return;
+        }
         scoreTimer += Time.deltaTime;
         currentScore = Mathf.FloorToInt(scoreTimer * scoreMultiplier);
         PlayerEvents.OnScoreIncreased?.Invoke();

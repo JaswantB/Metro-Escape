@@ -20,11 +20,11 @@ public class ChunkGenerator : MonoBehaviour
     List<GameObject> Chunks;
     void OnEnable()
     {
-        PlayerEvents.OnPlayerHit  += StopGeneration;
+        PlayerEvents.OnPlayerHit += StopGeneration;
     }
     void OnDisable()
     {
-        PlayerEvents.OnPlayerHit  -= StopGeneration;
+        PlayerEvents.OnPlayerHit -= StopGeneration;
     }
     private void Start()
     {
@@ -32,10 +32,7 @@ public class ChunkGenerator : MonoBehaviour
     }
     void Update()
     {
-        if (isGameOver)
-        {
-            return;
-        }
+        if (GameManager.instance?.CurrentState != GameState.Playing) return;
         MoveChunks();
     }
     GameObject SelectedNextPrefab()
