@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+   // public static Player instance { get; private set; }
     [Header("Lane Settings")]
     int currentLane = 0;     // -1, 0, 1
     int previousLane = 0;

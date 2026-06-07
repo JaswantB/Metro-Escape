@@ -1,9 +1,12 @@
 using UnityEngine;
+using System;
 
 public class ChunkPrefab : MonoBehaviour, IChunk
 {
     public Transform endPoint;
-    private Collectible[] collectibles;
+
+    // Decoupled event system
+    public event Action OnChunkReset;
 
     public Transform GetEndpoint()
     {
@@ -11,14 +14,8 @@ public class ChunkPrefab : MonoBehaviour, IChunk
     }
     public void ResetCollectibles()
     {
-        if (collectibles == null || collectibles.Length == 0)
-        {
-            collectibles = GetComponentsInChildren<Collectible>();
-        }
-        foreach (var collectible in collectibles)
-        {
-            collectible.ResetCollectible();
-        }
+        // Fire the event to notify all listening child elements
+        OnChunkReset?.Invoke();
     }
 }
 public interface IChunk
