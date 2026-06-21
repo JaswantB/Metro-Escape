@@ -21,4 +21,5 @@ public class ChunkPrefab : MonoBehaviour, IChunk
 public interface IChunk
 {
     Transform GetEndpoint();
+    void ResetCollectibles();
 }

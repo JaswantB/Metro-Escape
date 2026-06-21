@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-   // public static Player instance { get; private set; }
+    // public static Player instance { get; private set; }
     [Header("Lane Settings")]
     int currentLane = 0;     // -1, 0, 1
     int previousLane = 0;
@@ -66,6 +66,7 @@ public class Player : MonoBehaviour
 
     private void HandleHit()
     {
+        Debug.Log($"[Player] HandleHit called! isDead={isDead}");
         if (isDead) return;
 
         isDead = true;
@@ -74,23 +75,33 @@ public class Player : MonoBehaviour
         laneQueue.Clear();
         isSliding = false;
 
-        bool wasSwitchingFromCenter = isSwitchingLane && previousLane == 0;
+        // Determine which lane to snap to: original lane if hit during switch, otherwise current lane
+        int targetLane = isSwitchingLane ? previousLane : currentLane;
 
         StopAllCoroutines();
         isSwitchingLane = false;
 
-        if (wasSwitchingFromCenter)
-        {
-            StartCoroutine(SnapToMidAndDie());
-        }
-        else
-        {
-            StartCoroutine(DieInSameLane());
-        }
+        StartCoroutine(SnapToLaneAndDie(targetLane));
     }
-    private IEnumerator DieInSameLane()
+
+    private IEnumerator SnapToLaneAndDie(int targetLane)
     {
-        PlayerEvents.OnPlayerHit?.Invoke();
+        currentLane = targetLane;
+
+        Vector3 startPos = transform.position;
+        Vector3 target = new Vector3(targetLane * laneDistance, startPos.y, startPos.z);
+
+        float t = 0;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime * laneSwitchSpeed;
+            // Keep Y and Z updated dynamically to handle gravity/forward motion if any
+            Vector3 currentTarget = new Vector3(target.x, transform.position.y, transform.position.z);
+            Vector3 newPos = Vector3.Lerp(startPos, currentTarget, t);
+            characterController.Move(newPos - transform.position);
+            yield return null;
+        }
 
         yield return new WaitForSecondsRealtime(hitAnimationDuration);
 
@@ -186,28 +197,5 @@ public class Player : MonoBehaviour
         }
     }
 
-    private IEnumerator SnapToMidAndDie()
-    {
-        currentLane = 0;
 
-        Vector3 startPos = transform.position;
-        Vector3 target = new Vector3(0f, transform.position.y, transform.position.z);
-
-        float t = 0;
-
-        while (t < 1)
-        {
-            t += Time.deltaTime * laneSwitchSpeed;
-            Vector3 newPos = Vector3.Lerp(startPos, target, t);
-            characterController.Move(newPos - transform.position);
-            yield return null;
-        }
-
-        // AFTER snapping → play animation
-        PlayerEvents.OnPlayerHit?.Invoke();
-
-        yield return new WaitForSecondsRealtime(hitAnimationDuration);
-
-        PlayerEvents.OnPlayerDead?.Invoke();
-    }
 }

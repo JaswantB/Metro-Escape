@@ -8,6 +8,16 @@ public class PlayerAnimator : MonoBehaviour
 
     [SerializeField] float LaneChangeCoolDown = 0.5f;
     float lastChangeTime;
+
+    // Cached Animator Parameter Hashes for performance
+    private static readonly int RollHash = Animator.StringToHash("Roll");
+    private static readonly int SlidingTriggerHash = Animator.StringToHash("Sliding");
+    private static readonly int JumpHash = Animator.StringToHash("Jump");
+    private static readonly int IsGroundedHash = Animator.StringToHash("isGrounded");
+    private static readonly int IsSlidingHash = Animator.StringToHash("isSliding");
+    private static readonly int LaneSwitchHash = Animator.StringToHash("LaneSwitch");
+    private static readonly int IsDeadHash = Animator.StringToHash("isDead");
+    private static readonly int DieHash = Animator.StringToHash("Die");
     void Awake()
     {
         anim = GetComponent<Animator>();
@@ -38,31 +48,31 @@ public class PlayerAnimator : MonoBehaviour
         if (isDead) return;
         if (isJumping) return;
         isJumping = true;
-        anim.ResetTrigger("Roll");
-        anim.ResetTrigger("Sliding");
-        anim.SetTrigger("Jump");
+        anim.ResetTrigger(RollHash);
+        anim.ResetTrigger(SlidingTriggerHash);
+        anim.SetTrigger(JumpHash);
         //    anim.SetFloat("VerticalVelocity", 1f);
         //    anim.SetBool("isGrounded", false);
     }
     void HandleGround(bool Grounded)
     {
-        anim.SetBool("isGrounded", Grounded);
+        anim.SetBool(IsGroundedHash, Grounded);
         if (Grounded)
         {
             isJumping = false;
-            anim.ResetTrigger("Jump");
+            anim.ResetTrigger(JumpHash);
         }
     }
     void OnSlide()
     {
         if (isDead) return;
-        anim.ResetTrigger("Jump");
-        anim.SetTrigger("Sliding");
-        anim.SetBool("isSliding", true);
+        anim.ResetTrigger(JumpHash);
+        anim.SetTrigger(SlidingTriggerHash);
+        anim.SetBool(IsSlidingHash, true);
     }
     void SlideEnd()
     {
-        anim.SetBool("isSliding", false);
+        anim.SetBool(IsSlidingHash, false);
     }
     void OnLaneChange(int dir)
     {
@@ -76,16 +86,17 @@ public class PlayerAnimator : MonoBehaviour
 
         lastChangeTime = Time.time;
 
-        anim.ResetTrigger("LaneSwitch");
-        anim.SetTrigger("LaneSwitch");
+        anim.ResetTrigger(LaneSwitchHash);
+        anim.SetTrigger(LaneSwitchHash);
     }
     void OnPlayerHit()
     {
-        isDead=true;
-        anim.SetBool("isDead", true);
-        anim.ResetTrigger("Jump");
-        anim.ResetTrigger("LaneSwitch");
-        anim.ResetTrigger("Sliding");
-        anim.SetTrigger("Die");
+        Debug.Log($"[PlayerAnimator] OnPlayerHit event received! setting isDead=true and trigger Die");
+        isDead = true;
+        anim.SetBool(IsDeadHash, true);
+        anim.ResetTrigger(JumpHash);
+        anim.ResetTrigger(LaneSwitchHash);
+        anim.ResetTrigger(SlidingTriggerHash);
+        anim.SetTrigger(DieHash);
     }
 }

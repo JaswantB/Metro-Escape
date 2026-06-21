@@ -39,15 +39,19 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance?.CurrentState != GameState.Playing)
+        if (isGameOver || GameManager.instance?.CurrentState != GameState.Playing)
         {
             return;
         }
         scoreTimer += Time.deltaTime;
-        currentScore = Mathf.FloorToInt(scoreTimer * scoreMultiplier);
-        PlayerEvents.OnScoreIncreased?.Invoke();
-        PlayerEvents.OnScoreChanged?.Invoke(currentScore);
-        Debug.Log($"Score: {currentScore}");
+        int calculatedScore = Mathf.FloorToInt(scoreTimer * scoreMultiplier);
+        if (calculatedScore != currentScore)
+        {
+            currentScore = calculatedScore;
+            Debug.Log($"[ScoreManager] Score increased to: {currentScore}");
+            PlayerEvents.OnScoreIncreased?.Invoke();
+            PlayerEvents.OnScoreChanged?.Invoke(currentScore);
+        }
     }
 
     private void CollectCoins(int amount)

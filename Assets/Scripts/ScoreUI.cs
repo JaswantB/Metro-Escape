@@ -18,32 +18,23 @@ public class ScoreUI : MonoBehaviour
     {
         PlayerEvents.OnCoinsCollected += UpdateCoinUI;
         PlayerEvents.OnScoreReset     += ResetUI;
+        PlayerEvents.OnScoreChanged   += UpdateScoreUI;
     }
 
     private void OnDisable()
     {
         PlayerEvents.OnCoinsCollected -= UpdateCoinUI;
         PlayerEvents.OnScoreReset     -= ResetUI;
+        PlayerEvents.OnScoreChanged   -= UpdateScoreUI;
     }
 
-    private void Update()
+    private void UpdateScoreUI(int score)
     {
-        if (ScoreManager.Instance == null) return;
-
-        int realScore = ScoreManager.Instance.GetCurrentScore();
-        scoreText.text = realScore.ToString();
-        // if (displayedScore < realScore)
-        // {
-        //     displayedScore = Mathf.MoveTowards(
-        //         displayedScore, realScore, countSpeed * Time.deltaTime
-        //     );
-        //     int rounded = Mathf.RoundToInt(displayedScore);
-        //     if (rounded != lastScore)
-        //     {
-        //         lastScore      = rounded;
-        //         scoreText.text = rounded.ToString();
-        //     }
-        //}
+        if (score != lastScore)
+        {
+            lastScore      = score;
+            scoreText.text = score.ToString();
+        }
     }
 
     private void UpdateCoinUI(int amount)

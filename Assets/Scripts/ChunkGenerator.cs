@@ -19,7 +19,7 @@ public class ChunkGenerator : MonoBehaviour
     [Header("Object Pooling Settings")]
     [SerializeField] private int poolCount = 2; // Safe minimum: chunkPrefabs.Count × poolCount ≥ chunkAmount + 2
 
-    private float targetSpeed = 10f;
+    private float targetSpeed = 15f;
 
     // FIX 1: Cached camera — no more Camera.main in Update loop
     private Camera mainCamera;
@@ -29,6 +29,8 @@ public class ChunkGenerator : MonoBehaviour
 
     // FIX 2: Class-level list — reused via Clear(), no heap allocation per call
     private readonly List<GameObject> inactiveChunks = new List<GameObject>();
+
+    private bool isStopped = false;
 
     void OnEnable()
     {
@@ -47,13 +49,13 @@ public class ChunkGenerator : MonoBehaviour
         mainCamera = Camera.main; // Cache once here
         InitializePool();
         moveSpeed = 10f;
-        targetSpeed = 10f;
+        isStopped = false;
         SpawnChunks();
     }
 
     void Update()
     {
-        if (GameManager.instance?.CurrentState != GameState.Playing) return;
+        if (isStopped || GameManager.instance?.CurrentState != GameState.Playing) return;
 
         // Gradually transition current moveSpeed to targetSpeed
         moveSpeed = Mathf.MoveTowards(moveSpeed, targetSpeed, transitionSpeed * Time.deltaTime);
@@ -100,7 +102,9 @@ public class ChunkGenerator : MonoBehaviour
             inactiveChunks.Add(excludeChunk);
 
         if (inactiveChunks.Count > 0)
+        {
             return inactiveChunks[Random.Range(0, inactiveChunks.Count)];
+        }
 
         // Last resort: expand pool dynamically (shouldn't happen with correct poolCount)
         Debug.LogWarning("[ChunkGenerator] Pool exhausted. Increase poolCount!");
@@ -192,28 +196,34 @@ public class ChunkGenerator : MonoBehaviour
     }
     private void ResetChunk(GameObject chunk)
     {
-        // ✅ Search children too
-        ChunkPrefab chunkPrefab = chunk.GetComponentInChildren<ChunkPrefab>();
-        if (chunkPrefab != null)
-            chunkPrefab.ResetCollectibles();
+        IChunk chunkData = chunk.GetComponentInChildren<IChunk>();
+        if (chunkData != null)
+        {
+            chunkData.ResetCollectibles();
+        }
     }
     private void HandleScoreChanged(int score)
     {
+        float previousTargetSpeed = targetSpeed;
         // Set target speed based on score milestones
         if (score < 500)
-            targetSpeed = 10f;
+            targetSpeed = 15f;
         else if (score < 1500)
-            targetSpeed = 14f;
+            targetSpeed = 20f;
         else if (score < 3000)
-            targetSpeed = 18f;
+            targetSpeed = 25f;
         else
-            targetSpeed = 22f;
+            targetSpeed = 30f;
+
+        if (targetSpeed != previousTargetSpeed)
+        {
+            Debug.Log($"[ChunkGenerator] Score is {score}. Target speed increased from {previousTargetSpeed} to {targetSpeed}!");
+        }
     }
 
     private void StopGeneration()
     {
-        // FIX 4: isGameOver bool removed — Update already guards via GameManager.CurrentState
-        // When GameManager sets state to GameOver, MoveChunks stops automatically
+        isStopped = true;
     }
 
 

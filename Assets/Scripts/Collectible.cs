@@ -52,7 +52,8 @@ public class Collectible : MonoBehaviour
     {
         if (!coinCollider.enabled) return;
 
-        if (other.TryGetComponent<Player>(out Player player))
+        Player player = other.GetComponentInParent<Player>();
+        if (player != null)
         {
             PlayerEvents.OnCoinsCollected?.Invoke(1);
             HideCoin();

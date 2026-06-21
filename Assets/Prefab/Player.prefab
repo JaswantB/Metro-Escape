@@ -71,7 +71,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76338c66462a8f64d91621ec6e97d131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  laneDistance: 6.5
+  laneDistance: 16
   laneSwitchSpeed: 4
   jumpForce: 15
   gravityForce: -30
@@ -145,7 +145,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1.38, z: 0}
+  m_Center: {x: 0, y: 0.95, z: 0}
 --- !u!1 &8432905432588485036
 GameObject:
   m_ObjectHideFlags: 0
