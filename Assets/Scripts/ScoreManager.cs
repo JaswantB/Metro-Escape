@@ -46,6 +46,7 @@ public class ScoreManager : MonoBehaviour
         scoreTimer += Time.deltaTime;
         currentScore = Mathf.FloorToInt(scoreTimer * scoreMultiplier);
         PlayerEvents.OnScoreIncreased?.Invoke();
+        PlayerEvents.OnScoreChanged?.Invoke(currentScore);
         Debug.Log($"Score: {currentScore}");
     }
 

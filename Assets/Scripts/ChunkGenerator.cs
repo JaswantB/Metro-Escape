@@ -3,101 +3,78 @@ using UnityEngine;
 
 public class ChunkGenerator : MonoBehaviour
 {
-    [Header("Chunk Prefabs (Unified for Pooling)")]
+    [Header("Chunk Prefabs")]
     [SerializeField] private List<GameObject> chunkPrefabs;
-
-    [Header("Fallback / Compatibility Lists")]
-    [SerializeField] private List<GameObject> easyChunk;
-    [SerializeField] private List<GameObject> medChunk;
-    [SerializeField] private List<GameObject> hardChunk;
 
     [Header("Spawning Settings")]
     [SerializeField] private int chunkAmount = 12;
     [SerializeField] private float chunkLength = 20f;
     [SerializeField] private Transform chunkParent;
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float initialSpawnOffset = 7.5f;
 
-    [Header("Object Pooling Settings")]
-    [SerializeField] private int poolCount = 5; // Number of pooled instances per unique prefab type
+    [Header("Score Progression")]
+    [SerializeField] private float transitionSpeed = 2f; // How fast speed scales up (units/sec)
 
-    private bool isGameOver = false;
-    private List<GameObject> Chunks; // Stores the active chunks currently in play
-    private List<GameObject> chunkPool; // Stores all pooled inactive & active chunk instances
-    private List<GameObject> availablePrefabs; // Combined list of unique prefabs
+    [Header("Object Pooling Settings")]
+    [SerializeField] private int poolCount = 2; // Safe minimum: chunkPrefabs.Count × poolCount ≥ chunkAmount + 2
+
+    private float targetSpeed = 10f;
+
+    // FIX 1: Cached camera — no more Camera.main in Update loop
+    private Camera mainCamera;
+
+    private List<GameObject> activeChunks;
+    private List<GameObject> chunkPool;
+
+    // FIX 2: Class-level list — reused via Clear(), no heap allocation per call
+    private readonly List<GameObject> inactiveChunks = new List<GameObject>();
 
     void OnEnable()
     {
         PlayerEvents.OnPlayerHit += StopGeneration;
+        PlayerEvents.OnScoreChanged += HandleScoreChanged;
     }
 
     void OnDisable()
     {
         PlayerEvents.OnPlayerHit -= StopGeneration;
+        PlayerEvents.OnScoreChanged -= HandleScoreChanged;
     }
 
     private void Start()
     {
+        mainCamera = Camera.main; // Cache once here
         InitializePool();
+        moveSpeed = 10f;
+        targetSpeed = 10f;
         SpawnChunks();
     }
 
     void Update()
     {
         if (GameManager.instance?.CurrentState != GameState.Playing) return;
+
+        // Gradually transition current moveSpeed to targetSpeed
+        moveSpeed = Mathf.MoveTowards(moveSpeed, targetSpeed, transitionSpeed * Time.deltaTime);
+
         MoveChunks();
     }
 
     private void InitializePool()
     {
-        // Gather unique prefabs from chunkPrefabs and easy/med/hard compatibility lists
-        availablePrefabs = new List<GameObject>();
-
-        if (chunkPrefabs != null)
+        if (chunkPrefabs == null || chunkPrefabs.Count == 0)
         {
-            foreach (var prefab in chunkPrefabs)
-            {
-                if (prefab != null && !availablePrefabs.Contains(prefab))
-                    availablePrefabs.Add(prefab);
-            }
-        }
-
-        // Maintain backward compatibility for populated fields in Inspector
-        if (easyChunk != null)
-        {
-            foreach (var prefab in easyChunk)
-            {
-                if (prefab != null && !availablePrefabs.Contains(prefab))
-                    availablePrefabs.Add(prefab);
-            }
-        }
-        if (medChunk != null)
-        {
-            foreach (var prefab in medChunk)
-            {
-                if (prefab != null && !availablePrefabs.Contains(prefab))
-                    availablePrefabs.Add(prefab);
-            }
-        }
-        if (hardChunk != null)
-        {
-            foreach (var prefab in hardChunk)
-            {
-                if (prefab != null && !availablePrefabs.Contains(prefab))
-                    availablePrefabs.Add(prefab);
-            }
-        }
-
-        if (availablePrefabs.Count == 0)
-        {
-            Debug.LogError("[ChunkGenerator] No chunk prefabs assigned to chunkPrefabs, easyChunk, medChunk, or hardChunk lists!");
+            Debug.LogError("[ChunkGenerator] No chunk prefabs assigned!");
             return;
         }
 
-        // Initialize the object pool
         chunkPool = new List<GameObject>();
-        foreach (GameObject prefab in availablePrefabs)
+
+        foreach (GameObject prefab in chunkPrefabs)
         {
+            if (prefab == null) continue;
+
             for (int i = 0; i < poolCount; i++)
             {
                 GameObject obj = Instantiate(prefab, chunkParent);
@@ -109,32 +86,25 @@ public class ChunkGenerator : MonoBehaviour
 
     private GameObject GetPooledChunk(GameObject excludeChunk = null)
     {
-        List<GameObject> inactiveChunks = new List<GameObject>();
+        // FIX 2 in action: Clear() reuses memory instead of new List<>() allocating fresh
+        inactiveChunks.Clear();
 
-        // Proper activeInHierarchy check as requested by the user
         foreach (GameObject obj in chunkPool)
         {
             if (obj != null && !obj.activeInHierarchy && obj != excludeChunk)
-            {
                 inactiveChunks.Add(obj);
-            }
         }
 
-        // Fallback: If the only inactive chunk was the excluded one, allow it to be chosen to avoid freezing
+        // Fallback: if excluded chunk is the only option, allow it
         if (inactiveChunks.Count == 0 && excludeChunk != null && !excludeChunk.activeInHierarchy)
-        {
             inactiveChunks.Add(excludeChunk);
-        }
 
         if (inactiveChunks.Count > 0)
-        {
-            int randomIndex = Random.Range(0, inactiveChunks.Count);
-            return inactiveChunks[randomIndex];
-        }
+            return inactiveChunks[Random.Range(0, inactiveChunks.Count)];
 
-        // Dynamic expansion fallback: if the pool is fully exhausted, instantiate a new one to prevent failure
-        Debug.LogWarning("[ChunkGenerator] Object pool exhausted. Dynamically creating new instance.");
-        GameObject randomPrefab = availablePrefabs[Random.Range(0, availablePrefabs.Count)];
+        // Last resort: expand pool dynamically (shouldn't happen with correct poolCount)
+        Debug.LogWarning("[ChunkGenerator] Pool exhausted. Increase poolCount!");
+        GameObject randomPrefab = chunkPrefabs[Random.Range(0, chunkPrefabs.Count)];
         GameObject newObj = Instantiate(randomPrefab, chunkParent);
         newObj.SetActive(false);
         chunkPool.Add(newObj);
@@ -143,7 +113,7 @@ public class ChunkGenerator : MonoBehaviour
 
     private void SpawnChunks()
     {
-        Chunks = new List<GameObject>();
+        activeChunks = new List<GameObject>();
 
         for (int i = 0; i < chunkAmount; i++)
         {
@@ -152,108 +122,99 @@ public class ChunkGenerator : MonoBehaviour
 
             if (i == 0)
             {
-                Vector3 spawnPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z + initialSpawnOffset);
-                newChunk.transform.position = spawnPosition;
-                newChunk.transform.rotation = Quaternion.identity;
+                newChunk.transform.SetPositionAndRotation(
+                    new Vector3(transform.position.x, transform.position.y, transform.position.z + initialSpawnOffset),
+                    Quaternion.identity
+                );
             }
             else
             {
-                GameObject lastChunk = Chunks[Chunks.Count - 1];
-                IChunk chunkData = lastChunk.GetComponent<IChunk>();
-                if (chunkData != null)
-                {
-                    Transform endPoint = chunkData.GetEndpoint();
-                    newChunk.transform.position = endPoint.position;
-                    newChunk.transform.rotation = Quaternion.identity;
-                }
-                else
-                {
-                    // Fallback positioning if script missing
-                    Vector3 fallbackPos = lastChunk.transform.position + Vector3.forward * chunkLength;
-                    newChunk.transform.position = fallbackPos;
-                    newChunk.transform.rotation = Quaternion.identity;
-                }
+                // FIX 3: Extracted helper — no duplicate positioning logic
+                PositionChunkAfter(newChunk, activeChunks[activeChunks.Count - 1]);
             }
 
-            // Reset coins and other collectibles inside the chunk
-            if (newChunk.TryGetComponent<ChunkPrefab>(out ChunkPrefab chunkPrefab))
-            {
-                chunkPrefab.ResetCollectibles();
-            }
-
+            ResetChunk(newChunk);
             newChunk.SetActive(true);
-            Chunks.Add(newChunk);
+            activeChunks.Add(newChunk);
         }
     }
 
     private void MoveChunks()
     {
-        for (int i = 0; i < Chunks.Count; i++)
+        for (int i = 0; i < activeChunks.Count; i++)
         {
-            GameObject currentChunk = Chunks[i];
-
-            // Move the chunk backward
+            GameObject currentChunk = activeChunks[i];
             currentChunk.transform.Translate(-Vector3.forward * moveSpeed * Time.deltaTime);
 
-            // Check if the chunk has moved off-screen (behind the player/camera)
-            if (currentChunk.transform.position.z < Camera.main.transform.position.z - chunkLength)
+            // FIX 1 in action: mainCamera instead of Camera.main
+            if (currentChunk.transform.position.z < mainCamera.transform.position.z - chunkLength)
             {
-                GameObject lastChunk = Chunks[Chunks.Count - 1];
+                GameObject lastChunk = activeChunks[activeChunks.Count - 1];
 
-                // Do not recycle if it's the last chunk in the sequence (to avoid spawning errors)
-                if (currentChunk == lastChunk)
+                if (currentChunk == lastChunk) continue;
+
+                currentChunk.SetActive(false);
+                activeChunks.RemoveAt(i);
+
+                GameObject newChunk = GetPooledChunk(currentChunk);
+
+                if (newChunk != null)
                 {
-                    continue;
+                    PositionChunkAfter(newChunk, lastChunk);
+                    ResetChunk(newChunk);
+                    newChunk.SetActive(true);
+                    activeChunks.Add(newChunk);
                 }
-                else
-                {
-                    // 1. Deactivate the recycled chunk (returning it to the pool)
-                    currentChunk.SetActive(false);
 
-                    // 2. Remove it from the active list
-                    Chunks.RemoveAt(i);
-
-                    // 3. Retrieve a random new chunk from the pool, excluding the one we just turned off (unless it's the only option)
-                    GameObject newChunk = GetPooledChunk(currentChunk);
-
-                    if (newChunk != null)
-                    {
-                        // 4. Position the new chunk at the endpoint of the current last chunk
-                        IChunk chunkData = lastChunk.GetComponent<IChunk>();
-                        if (chunkData != null)
-                        {
-                            Transform endPoint = chunkData.GetEndpoint();
-                            newChunk.transform.position = endPoint.position;
-                            newChunk.transform.rotation = Quaternion.identity;
-                        }
-                        else
-                        {
-                            Vector3 fallbackPos = lastChunk.transform.position + Vector3.forward * chunkLength;
-                            newChunk.transform.position = fallbackPos;
-                            newChunk.transform.rotation = Quaternion.identity;
-                        }
-
-                        // 5. Reset the collectibles (coins) on the recycled chunk
-                        if (newChunk.TryGetComponent<ChunkPrefab>(out ChunkPrefab chunkPrefab))
-                        {
-                            chunkPrefab.ResetCollectibles();
-                        }
-
-                        // 6. Activate the chunk and add it to the active list
-                        newChunk.SetActive(true);
-                        Chunks.Add(newChunk);
-                    }
-
-                    // 7. Adjust index due to item removal
-                    i--;
-                }
+                i--;
             }
         }
     }
 
+    // FIX 3: Single positioning method used by both SpawnChunks & MoveChunks (DRY)
+    // ✅ Cache ChunkPrefab reference alongside IChunk
+    private void PositionChunkAfter(GameObject chunk, GameObject referenceChunk)
+    {
+        IChunk chunkData = referenceChunk.GetComponentInChildren<IChunk>();
+
+        // 🔍 Add this - tells us EXACTLY where endpoint is in world space
+        if (chunkData != null)
+            Debug.Log($"Endpoint World Position Z: {chunkData.GetEndpoint().position.z}");
+        else
+            Debug.LogError("IChunk still null!");
+
+        chunk.transform.SetPositionAndRotation(
+            chunkData != null
+                ? chunkData.GetEndpoint().position
+                : referenceChunk.transform.position + Vector3.forward * chunkLength,
+            Quaternion.identity
+        );
+    }
+    private void ResetChunk(GameObject chunk)
+    {
+        // ✅ Search children too
+        ChunkPrefab chunkPrefab = chunk.GetComponentInChildren<ChunkPrefab>();
+        if (chunkPrefab != null)
+            chunkPrefab.ResetCollectibles();
+    }
+    private void HandleScoreChanged(int score)
+    {
+        // Set target speed based on score milestones
+        if (score < 500)
+            targetSpeed = 10f;
+        else if (score < 1500)
+            targetSpeed = 14f;
+        else if (score < 3000)
+            targetSpeed = 18f;
+        else
+            targetSpeed = 22f;
+    }
+
     private void StopGeneration()
     {
-        isGameOver = true;
+        // FIX 4: isGameOver bool removed — Update already guards via GameManager.CurrentState
+        // When GameManager sets state to GameOver, MoveChunks stops automatically
     }
-}
 
+
+}
